@@ -29,13 +29,20 @@ typedef TiledMapObject =
   type : String
 };
 
+enum TiledMapLayerType
+{
+  Tile;
+  Object;
+}
+
 typedef TiledMapLayer =
 {
   var data : Array<Int>;
   var name : String;
+  var type : TiledMapLayerType;
   var opacity : Float;
   var objects : Array<TiledMapObject>;
-  var properties : StringMap<String>;
+  var properties : StringMap<Dynamic>;
 }
 
 typedef TiledMapData =
@@ -116,7 +123,7 @@ class TiledMap extends Resource
       data.push(input.readInt32());
     }
 
-		var properties = new StringMap<String>();
+		var properties = new StringMap<Dynamic>();
     if (layer.hasNode.properties)
 		{
       for (prop in layer.node.properties.nodes.property)
@@ -127,6 +134,7 @@ class TiledMap extends Resource
 
     return {
       name: layer.att.name,
+      type: TiledMapLayerType.Tile,
       opacity: layer.has.opacity ? Std.parseFloat(layer.att.opacity) : 1.,
       objects: [],
       properties: properties,
@@ -150,7 +158,7 @@ class TiledMap extends Resource
       }
     }
 
-		var properties = new StringMap<String>();
+    var properties = new StringMap<Dynamic>();
 		if (group.hasNode.properties)
 		{
 			for (prop in group.node.properties.nodes.property)
@@ -161,6 +169,7 @@ class TiledMap extends Resource
 
     return {
       name: group.att.name,
+      type: TiledMapLayerType.Object,
       opacity: 1.,
       objects: objects,
       properties: properties,
@@ -168,10 +177,10 @@ class TiledMap extends Resource
     };
   }
 
-  function processGroup(groupNode : Access, layers : Array<TiledMapLayer>, ?sharedProps : StringMap<String>)
+  function processGroup(groupNode : Access, layers : Array<TiledMapLayer>, ?sharedProps : StringMap<Dynamic>)
   {
 		// Merge properties from group level down into child nodes
-    var properties = sharedProps == null ? new StringMap<String>() : sharedProps.copy();
+    var properties = sharedProps == null ? new StringMap<Dynamic>() : sharedProps.copy();
 		if (groupNode.hasNode.properties)
 		{
       for (prop in groupNode.node.properties.nodes.property)
@@ -204,5 +213,35 @@ class TiledMap extends Resource
     {
       processGroup(group, layers, properties);
     }
+  }
+
+  function parseProperty(prop : Access) : Dynamic
+  {
+    var value : Dynamic;
+
+    if (prop.has.type)
+    {
+      // TODO: Support other types
+      switch (prop.att.type)
+      {
+        case "bool":
+          value = prop.att.value == "true";
+        
+        case "int":
+          value = Std.parseInt(prop.att.value);
+        
+        case "float":
+          value = Std.parseFloat(prop.att.value);
+
+        default:
+          value = prop.att.value;
+      }
+    }
+    else
+    {
+      value = prop.att.value;
+    }
+
+    return value;
   }
 }
