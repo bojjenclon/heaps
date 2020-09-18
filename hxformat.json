@@ -1,0 +1,17 @@
+{
+  "lineEnds": {
+    "leftCurly": "both",
+    "emptyCurly": "break",
+
+    "objectLiteralCurly": {
+      "leftCurly": "after"
+    }
+  },
+  "indentation": {
+    "character": "  "
+  },
+  "whitespace": {
+    "typeCheckColonPolicy": "around",
+    "typeHintColonPolicy": "around"
+  }
+}

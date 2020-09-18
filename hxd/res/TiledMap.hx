@@ -128,7 +128,7 @@ class TiledMap extends Resource
 		{
       for (prop in layer.node.properties.nodes.property)
       {
-        properties.set(prop.att.name, prop.att.value);
+        properties.set(prop.att.name, parseProperty(prop));
       }
 		}
 
@@ -163,7 +163,7 @@ class TiledMap extends Resource
 		{
 			for (prop in group.node.properties.nodes.property)
 			{
-				properties.set(prop.att.name, prop.att.value);
+        properties.set(prop.att.name, parseProperty(prop));
 			}
 		}
 
@@ -185,7 +185,7 @@ class TiledMap extends Resource
 		{
       for (prop in groupNode.node.properties.nodes.property)
       {
-        properties.set(prop.att.name, prop.att.value);
+        properties.set(prop.att.name, parseProperty(prop));
       }
 		}
     
