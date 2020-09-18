@@ -25,6 +25,8 @@ typedef TiledMapObject =
 {
   x : Int,
   y : Int,
+  width : Int,
+  height : Int,
   name : String,
   type : String
 };
@@ -147,15 +149,14 @@ class TiledMap extends Resource
     var objects : Array<TiledMapObject> = new Array<TiledMapObject>();
     for (obj in group.nodes.object)
     {
-      if (obj.has.name)
-      {
-        objects.push({
-          name: obj.att.name,
-          type: obj.has.type ? obj.att.type : null,
-          x: Std.parseInt(obj.att.x),
-          y: Std.parseInt(obj.att.y)
-        });
-      }
+      objects.push({
+        name: obj.has.name ? obj.att.name : "",
+        type: obj.has.type ? obj.att.type : "",
+        x: Std.parseInt(obj.att.x),
+        y: Std.parseInt(obj.att.y),
+        width: Std.parseInt(obj.att.width),
+        height: Std.parseInt(obj.att.height)
+      });
     }
 
     var properties = new StringMap<Dynamic>();
