@@ -28,7 +28,8 @@ typedef TiledMapObject =
   width : Int,
   height : Int,
   name : String,
-  type : String
+  type : String,
+  properties : StringMap<Dynamic>
 };
 
 enum TiledMapLayerType
@@ -125,14 +126,14 @@ class TiledMap extends Resource
       data.push(input.readInt32());
     }
 
-		var properties = new StringMap<Dynamic>();
+    var properties = new StringMap<Dynamic>();
     if (layer.hasNode.properties)
-		{
+    {
       for (prop in layer.node.properties.nodes.property)
       {
         properties.set(prop.att.name, parseProperty(prop));
       }
-		}
+    }
 
     return {
       name: layer.att.name,
@@ -149,24 +150,34 @@ class TiledMap extends Resource
     var objects : Array<TiledMapObject> = new Array<TiledMapObject>();
     for (obj in group.nodes.object)
     {
+      var properties = new StringMap<Dynamic>();
+      if (obj.hasNode.properties)
+      {
+        for (prop in obj.node.properties.nodes.property)
+        {
+          properties.set(prop.att.name, parseProperty(prop));
+        }
+      }
+
       objects.push({
         name: obj.has.name ? obj.att.name : "",
         type: obj.has.type ? obj.att.type : "",
         x: Std.parseInt(obj.att.x),
         y: Std.parseInt(obj.att.y),
         width: Std.parseInt(obj.att.width),
-        height: Std.parseInt(obj.att.height)
+        height: Std.parseInt(obj.att.height),
+        properties: properties
       });
     }
 
     var properties = new StringMap<Dynamic>();
-		if (group.hasNode.properties)
-		{
-			for (prop in group.node.properties.nodes.property)
-			{
+    if (group.hasNode.properties)
+    {
+      for (prop in group.node.properties.nodes.property)
+      {
         properties.set(prop.att.name, parseProperty(prop));
-			}
-		}
+      }
+    }
 
     return {
       name: group.att.name,
@@ -180,16 +191,16 @@ class TiledMap extends Resource
 
   function processGroup(groupNode : Access, layers : Array<TiledMapLayer>, ?sharedProps : StringMap<Dynamic>)
   {
-		// Merge properties from group level down into child nodes
+    // Merge properties from group level down into child nodes
     var properties = sharedProps == null ? new StringMap<Dynamic>() : sharedProps.copy();
-		if (groupNode.hasNode.properties)
-		{
+    if (groupNode.hasNode.properties)
+    {
       for (prop in groupNode.node.properties.nodes.property)
       {
         properties.set(prop.att.name, parseProperty(prop));
       }
-		}
-    
+    }
+
     for (layer in groupNode.nodes.layer)
     {
       var layer = processLayer(layer);
@@ -227,18 +238,17 @@ class TiledMap extends Resource
       {
         case "bool":
           value = prop.att.value == "true";
-        
+
         case "int":
           value = Std.parseInt(prop.att.value);
-        
+
         case "float":
           value = Std.parseFloat(prop.att.value);
 
         default:
           value = prop.att.value;
       }
-    }
-    else
+    } else
     {
       value = prop.att.value;
     }
